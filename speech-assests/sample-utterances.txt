@@ -1,0 +1,208 @@
+AnswerIntent {Boolean}
+AnswerIntent that is {Boolean}
+AnswerIntent that's {Boolean}
+AnswerIntent it is {Boolean}
+AnswerIntent it's {Boolean}
+AnswerIntent the answer is {Boolean}
+
+AnswerIntent {Digit_Number}
+AnswerIntent that is {Digit_Number}
+AnswerIntent that's {Digit_Number}
+AnswerIntent it is {Digit_Number}
+AnswerIntent it's {Digit_Number}
+AnswerIntent the answer is {Digit_Number}
+
+AnswerIntent {Number}
+AnswerIntent that is {Number}
+AnswerIntent that's {Number}
+AnswerIntent it is {Number}
+AnswerIntent it's {Number}
+AnswerIntent the answer is {Number}
+
+AnswerIntent {Actor}
+AnswerIntent that is {Actor}
+AnswerIntent that's {Actor}
+AnswerIntent it is {Actor}
+AnswerIntent it's {Actor}
+AnswerIntent the answer is {Actor}
+
+AnswerIntent {Artist}
+AnswerIntent that is {Artist}
+AnswerIntent that's {Artist}
+AnswerIntent it is {Artist}
+AnswerIntent it's {Artist}
+AnswerIntent the answer is {Artist}
+
+AnswerIntent {Author}
+AnswerIntent that is {Author}
+AnswerIntent that's {Author}
+AnswerIntent it is {Author}
+AnswerIntent it's {Author}
+AnswerIntent the answer is {Author}
+
+AnswerIntent {Animal}
+AnswerIntent that is {Animal}
+AnswerIntent that's {Animal}
+AnswerIntent it is {Animal}
+AnswerIntent it's {Animal}
+AnswerIntent the answer is {Animal}
+
+AnswerIntent {Color}
+AnswerIntent that is {Color}
+AnswerIntent that's {Color}
+AnswerIntent it is {Color}
+AnswerIntent it's {Color}
+AnswerIntent the answer is {Color}
+
+AnswerIntent {Food}
+AnswerIntent that is {Food}
+AnswerIntent that's {Food}
+AnswerIntent it is {Food}
+AnswerIntent it's {Food}
+AnswerIntent the answer is {Food}
+
+AnswerIntent {Book}
+AnswerIntent that is {Book}
+AnswerIntent that's {Book}
+AnswerIntent it is {Book}
+AnswerIntent it's {Book}
+AnswerIntent the answer is {Book}
+
+AnswerIntent {Book_Series}
+AnswerIntent that is {Book_Series}
+AnswerIntent that's {Book_Series}
+AnswerIntent it is {Book_Series}
+AnswerIntent it's {Book_Series}
+AnswerIntent the answer is {Book_Series}
+
+AnswerIntent {Director}
+AnswerIntent that is {Director}
+AnswerIntent that's {Director}
+AnswerIntent it is {Director}
+AnswerIntent it's {Director}
+AnswerIntent the answer is {Director}
+
+AnswerIntent {Fictional_Character}
+AnswerIntent that is {Fictional_Character}
+AnswerIntent that's {Fictional_Character}
+AnswerIntent it is {Fictional_Character}
+AnswerIntent it's {Fictional_Character}
+AnswerIntent the answer is {Fictional_Character}
+
+AnswerIntent {Game}
+AnswerIntent that is {Game}
+AnswerIntent that's {Game}
+AnswerIntent it is {Game}
+AnswerIntent it's {Game}
+AnswerIntent the answer is {Game}
+
+AnswerIntent {Genre}
+AnswerIntent that is {Genre}
+AnswerIntent that's {Genre}
+AnswerIntent it is {Genre}
+AnswerIntent it's {Genre}
+AnswerIntent the answer is {Genre}
+
+AnswerIntent {Movie}
+AnswerIntent that is {Movie}
+AnswerIntent that's {Movie}
+AnswerIntent it is {Movie}
+AnswerIntent it's {Movie}
+AnswerIntent the answer is {Movie}
+
+AnswerIntent {Movie_Series}
+AnswerIntent that is {Movie_Series}
+AnswerIntent that's {Movie_Series}
+AnswerIntent it is {Movie_Series}
+AnswerIntent it's {Movie_Series}
+AnswerIntent the answer is {Movie_Series}
+
+AnswerIntent {Person}
+AnswerIntent that is {Person}
+AnswerIntent that's {Person}
+AnswerIntent it is {Person}
+AnswerIntent it's {Person}
+AnswerIntent the answer is {Person}
+
+AnswerIntent {Video_Game}
+AnswerIntent that is {Video_Game}
+AnswerIntent that's {Video_Game}
+AnswerIntent it is {Video_Game}
+AnswerIntent it's {Video_Game}
+AnswerIntent the answer is {Video_Game}
+ 
+AnswerIntent {Software}
+AnswerIntent that is {Software}
+AnswerIntent that's {Software}
+AnswerIntent it is {Software}
+AnswerIntent it's {Software}
+AnswerIntent the answer is {Software}
+
+AnswerIntent {US_Cities}
+AnswerIntent that is {US_Cities}
+AnswerIntent that's {US_Cities}
+AnswerIntent it is {US_Cities}
+AnswerIntent it's {US_Cities}
+AnswerIntent the answer is {US_Cities}
+
+AnswerIntent {Comics}
+AnswerIntent that is {Comics}
+AnswerIntent that's {Comics}
+AnswerIntent it is {Comics}
+AnswerIntent it's {Comics}
+AnswerIntent the answer is {Comics}
+
+AnswerIntent {County}
+AnswerIntent that is {County}
+AnswerIntent that's {County}
+AnswerIntent it is {County}
+AnswerIntent it's {County}
+AnswerIntent the answer is {County}
+
+AnswerIntent {US_Names}
+AnswerIntent that is {US_Names}
+AnswerIntent that's {US_Names}
+AnswerIntent it is {US_Names}
+AnswerIntent it's {US_Names}
+AnswerIntent the answer is {US_Names}
+
+AnswerIntent {States}
+AnswerIntent that is {States}
+AnswerIntent that's {States}
+AnswerIntent it is {States}
+AnswerIntent it's {States}
+AnswerIntent the answer is {States}
+
+AnswerIntent {Sports}
+AnswerIntent that is {Sports}
+AnswerIntent that's {Sports}
+AnswerIntent it is {Sports}
+AnswerIntent it's {Sports}
+AnswerIntent the answer is {Sports}
+
+CategoryIntent {Category}
+CategoryIntent let's go with a {Category} question
+CategoryIntent give me a {Category} question
+CategoryIntent let's try {Category}
+CategoryIntent I feel like a {Category} question
+CategoryIntent how about a {Category} question
+CategoryIntent let's do a {Category} question
+CategoryIntent list the categories
+CategoryIntent give me the categories
+CategoryIntent tell me the categories
+
+RandomTriviaIntent give me random trivia
+RandomTriviaIntent for random trivia
+RandomTriviaIntent for a random question
+RandomTriviaIntent give me a random question
+RandomTriviaIntent give me a random trivia question
+RandomTriviaIntent I want random trivia questions
+RandomTriviaIntent random trivia questions
+
+QuizIntent start a quiz
+QuizIntent start a quiz game
+QuizIntent and start a quiz
+QuizIntent and quiz me
+QuizIntent for a quiz
+QuizIntent take a quiz
+QuizIntent a quiz

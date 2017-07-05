@@ -1,0 +1,140 @@
+{
+  "intents": [
+    {
+      "intent": "QuizIntent"
+    },
+    {
+      "slots": [
+        {
+          "name": "Category",
+          "type": "LIST_OF_CATEGORIES"
+        }
+      ],
+      "intent": "CategoryIntent"
+    },
+    {
+      "intent": "RandomTriviaIntent"
+    },
+    {
+      "slots": [
+        {
+          "name": "Boolean",
+          "type": "LIST_OF_BOOLS"
+        },
+        {
+          "name": "Digit_Number",
+          "type": "AMAZON.FOUR_DIGIT_NUMBER"
+        },
+        {
+          "name": "Number",
+          "type": "AMAZON.NUMBER"
+        },
+        {
+          "name": "Actor",
+          "type": "AMAZON.Actor"
+        },
+        {
+          "name": "Artist",
+          "type": "AMAZON.Artist"
+        },
+        {
+          "name": "Author",
+          "type": "AMAZON.Author"
+        },
+        {
+          "name": "Animal",
+          "type": "AMAZON.Animal"
+        },
+        {
+          "name": "Color",
+          "type": "AMAZON.Color"
+        },
+        {
+          "name": "Food",
+          "type": "AMAZON.Food"
+        },
+        {
+          "name": "Book",
+          "type": "AMAZON.Book"
+        },
+        {
+          "name": "Book_Series",
+          "type": "AMAZON.BookSeries"
+        },
+        {
+          "name": "Director",
+          "type": "AMAZON.Director"
+        },
+        {
+          "name": "Fictional_Character",
+          "type": "AMAZON.FictionalCharacter"
+        },
+        {
+          "name": "Game",
+          "type": "AMAZON.Game"
+        },
+        {
+          "name": "Genre",
+          "type": "AMAZON.Genre"
+        },
+        {
+          "name": "Movie",
+          "type": "AMAZON.Movie"
+        },
+        {
+          "name": "Movie_Series",
+          "type": "AMAZON.MovieSeries"
+        },
+        {
+          "name": "Person",
+          "type": "AMAZON.Person"
+        },
+        {
+          "name": "Video_Game",
+          "type": "AMAZON.VideoGame"
+        },
+        {
+          "name": "Software",
+          "type": "AMAZON.SoftwareGame"
+        },
+        {
+          "name": "US_Cities",
+          "type": "AMAZON.US_CITY"
+        },
+        {
+          "name": "Comics",
+          "type": "AMAZON.Comic"
+        },
+        {
+          "name": "County",
+          "type": "AMAZON.Country"
+        },
+        {
+          "name": "US_Names",
+          "type": "AMAZON.US_FIRST_NAME"
+        },
+        {
+          "name": "States",
+          "type": "AMAZON.US_STATE"
+        },
+        {
+          "name": "Sports",
+          "type": "AMAZON.Sport"
+        }
+      ],
+      "intent": "AnswerIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.StartOverIntent"
+    }
+  ]
+}
