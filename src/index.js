@@ -79,11 +79,15 @@ function urlBuilder()
         var min = 0;
         var max = categories.length;
         var randomIndex = getRandom(min, max);
-        url = "https://opentdb.com/api.php?amount=1&category=" + categories[randomIndex].CatID + "&encode=url3986";;
+        if(urlProperties.type == "any") {
+            url = "https://opentdb.com/api.php?amount=1&category=" + categories[randomIndex].CatID + "&encode=url3986";
+        }else {
+            url = "https://opentdb.com/api.php?amount=1&category=" + categories[randomIndex].CatID + "&type=" + urlProperties.type + "&encode=url3986";
+        }
     }else if(urlProperties.type == "any") {
-        url = "https://opentdb.com/api.php?amount=" + urlProperties.numberOfQuestions + "&category=" + urlProperties.catID + "&encode=url3986";;
+        url = "https://opentdb.com/api.php?amount=" + urlProperties.numberOfQuestions + "&category=" + urlProperties.catID + "&encode=url3986";
     }else {
-        url = "https://opentdb.com/api.php?amount=" + urlProperties.numberOfQuestions + "&category=" + urlProperties.catID + "&type=" + urlProperties.type + "&encode=url3986";;
+        url = "https://opentdb.com/api.php?amount=" + urlProperties.numberOfQuestions + "&category=" + urlProperties.catID + "&type=" + urlProperties.type + "&encode=url3986";
     }
 
     return url;
