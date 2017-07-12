@@ -68,7 +68,7 @@ var REPROMPT_MESSAGE = "I´m waiting for your answer. If you need help please as
 var HELP_MESSAGE = "I´m a trivia app. You can ask me for a random trivia question and I´ll find an interesting trivia question for you! You can also play a game by asking me to start a quiz and I´ll quiz you to test your knowledge. What would you like to do?";
 
 //This is the message a user will hear if there's a database error.
-var DB_ERROR_MESSAGE = "There was a problem retrieving questions from database. Please try again." + getCategoryPrompt();
+var DB_ERROR_MESSAGE = "There was a problem retrieving questions from database. Please try again.";
 
 //Builds url for random trivia or quiz.
 function urlBuilder() 
@@ -79,6 +79,7 @@ function urlBuilder()
         var min = 0;
         var max = categories.length;
         var randomIndex = getRandom(min, max);
+
         if(urlProperties.type == "any") {
             url = "https://opentdb.com/api.php?amount=1&category=" + categories[randomIndex].CatID + "&encode=url3986";
         }else {
@@ -99,7 +100,7 @@ function getRandom(min, max) { return Math.floor(Math.random() * (max - min)) + 
 //Gets question from data retrieved from Open Trivia DB.
 function getQuestion(counter, questionStruct) 
 { 
-    if(questionStruct.type.toLowerCase() == "boolean"){
+    if(questionStruct.type.toLowerCase() == "boolean") {
         return "Here is your " + counter + "th question. " + questionStruct.question + " " + "True or False?";
     }
 
@@ -156,7 +157,7 @@ function getSpeechCon(type)
 function getCategoryPrompt()
 {
 	var speech = "Please choose a category. Here is the list you can choose from.";
-	for(var i = 0; i < categories.length; i++){
+	for(var i = 0; i < categories.length; i++) {
 		if(i == (categories.length - 1)) {
 			speech += " and " + categories[i].CatName + ".";
 		} else {
@@ -179,12 +180,9 @@ function getCategory(userPick)
 //Compare answer given by user and correct answer.
 function compareAnswers(slots, value)
 {   
-    for (var slot in slots)
-    {
-        if (slots[slot].value != undefined)
-        {
-            if (slots[slot].value.toString().toLowerCase() == value.toString().toLowerCase())
-            {
+    for (var slot in slots) {
+        if (slots[slot].value != undefined) {
+            if (slots[slot].value.toString().toLowerCase() == value.toString().toLowerCase()) {
                 return true;
             }
         }
@@ -192,7 +190,17 @@ function compareAnswers(slots, value)
     return false;
 }
 
+//Format Open Trivia DB data
+function format(value)
+{
+    var result = decodeURIComponent(value);
 
+    if(result.includes("-")) {
+        result = result.replace(/-/g, " ");
+    }
+
+    return result;
+}
 
 //=========================================================================================================================================
 //Flow Control logic below.  
@@ -253,11 +261,11 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
             res.on('end', () => {
                 data = JSON.parse(body);
                 var results = data.results;
-                for(var i = 0; i < results.length; i++){
-                    results[i].question = decodeURIComponent(results[i].question);
-                    results[i].correct_answer = decodeURIComponent(results[i].correct_answer);
-                    for(var j = 0; j < results[i].incorrect_answers.length; j++){
-                        results[i].incorrect_answers[j] = decodeURIComponent(results[i].incorrect_answers[j]);
+                for(var i = 0; i < results.length; i++) {
+                    results[i].question = format(results[i].question);
+                    results[i].correct_answer = format(results[i].correct_answer);
+                    for(var j = 0; j < results[i].incorrect_answers.length; j++) {
+                        results[i].incorrect_answers[j] = format(results[i].incorrect_answers[j]);
                     }
                 }
                 this.attributes["questionList"] = results;
@@ -292,7 +300,7 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         this.emit(":ask", speechOutput, REPROMPT_MESSAGE);
     },
     "AnswerIntent": function() {
-        if(this.attributes["currentQuestion"] == undefined){
+        if(this.attributes["currentQuestion"] == undefined) {
             var response = "I don't know too much about that.";
             this.emit(":ask", response + " " + HELP_MESSAGE, HELP_MESSAGE);
         }
@@ -372,11 +380,11 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
             res.on('end', () => {
                 data = JSON.parse(body);
                 var results = data.results;
-                for(var i = 0; i < results.length; i++){
-                    results[i].question = decodeURIComponent(results[i].question);
-                    results[i].correct_answer = decodeURIComponent(results[i].correct_answer);
-                    for(var j = 0; j < results[i].incorrect_answers.length; j++){
-                        results[i].incorrect_answers[j] = decodeURIComponent(results[i].incorrect_answers[j]);
+                for(var i = 0; i < results.length; i++) {
+                    results[i].question = format(results[i].question);
+                    results[i].correct_answer = format(results[i].correct_answer);
+                    for(var j = 0; j < results[i].incorrect_answers.length; j++) {
+                        results[i].incorrect_answers[j] = format(results[i].incorrect_answers[j]);
                     }
                 }
                 this.attributes["questionList"] = results;
