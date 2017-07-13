@@ -42,6 +42,10 @@
           "type": "AMAZON.Author"
         },
         {
+          "name": "Athlete",
+          "type": "AMAZON.Athlete"
+        },
+        {
           "name": "Animal",
           "type": "AMAZON.Animal"
         },
@@ -120,6 +124,22 @@
         {
           "name": "Sports",
           "type": "AMAZON.Sport"
+        },
+        {
+          "name": "Book_Character",
+          "type": "LIST_OF_BOOK_CHARACTERS"
+        },
+        {
+          "name": "Movie_Character",
+          "type": "LIST_OF_MOVIE_CHARACTERS"
+        },
+        {
+          "name": "Videogame_Character",
+          "type": "LIST_OF_VIDEOGAME_CHARACTERS"
+        },
+        {
+          "name": "Car",
+          "type": "LIST_OF_CARS"
         }
       ],
       "intent": "AnswerIntent"

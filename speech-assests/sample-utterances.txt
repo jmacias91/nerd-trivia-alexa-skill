@@ -180,6 +180,41 @@ AnswerIntent it is {Sports}
 AnswerIntent it's {Sports}
 AnswerIntent the answer is {Sports}
 
+AnswerIntent {Athlete}
+AnswerIntent that is {Athlete}
+AnswerIntent that's {Athlete}
+AnswerIntent it is {Athlete}
+AnswerIntent it's {Athlete}
+AnswerIntent the answer is {Athlete}
+
+AnswerIntent {Book_Character}
+AnswerIntent that is {Book_Character}
+AnswerIntent that's {Book_Character}
+AnswerIntent it is {Book_Character}
+AnswerIntent it's {Book_Character}
+AnswerIntent the answer is {Book_Character}
+
+AnswerIntent {Movie_Character}
+AnswerIntent that is {Movie_Character}
+AnswerIntent that's {Movie_Character}
+AnswerIntent it is {Movie_Character}
+AnswerIntent it's {Movie_Character}
+AnswerIntent the answer is {Movie_Character}
+
+AnswerIntent {Videogame_Character}
+AnswerIntent that is {Videogame_Character}
+AnswerIntent that's {Videogame_Character}
+AnswerIntent it is {Videogame_Character}
+AnswerIntent it's {Videogame_Character}
+AnswerIntent the answer is {Videogame_Character}
+
+AnswerIntent {Car}
+AnswerIntent that is {Car}
+AnswerIntent that's {Car}
+AnswerIntent it is {Car}
+AnswerIntent it's {Car}
+AnswerIntent the answer is {Car}
+
 CategoryIntent {Category}
 CategoryIntent let's go with a {Category} question
 CategoryIntent give me a {Category} question
