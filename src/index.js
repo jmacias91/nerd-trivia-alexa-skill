@@ -23,11 +23,11 @@ const categories = [
 					{CatName: "video games",  CatID: 15},
 					{CatName: "books",        CatID: 10},
 					{CatName: "films",        CatID: 11},
-                    {CatName: "history",      CatID: 23},
                     {CatName: "comics",       CatID: 29},
                     {CatName: "anime",        CatID: 31},
                     {CatName: "cartoons",     CatID: 32},
                     {CatName: "television",   CatID: 14},
+                    {CatName: "history",      CatID: 23},
                     {CatName: "mythology",    CatID: 20}
 				   ];
 

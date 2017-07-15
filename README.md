@@ -11,4 +11,10 @@ The currently supported categories are:
 Video Games
 Films
 Books
+Comics
+Anime
+Cartoons
+Television
+History
+Mythology
 
