@@ -55,13 +55,13 @@ var speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Dar
 "Mamma mia", "Oh boy", "Oh dear", "Oof", "Ouch", "Ruh roh", "Shucks", "Uh oh", "Wah wah", "Whoops a daisy", "Yikes"];
 
 //This is the welcome message for when a user starts the skill without a specific intent.
-var WELCOME_MESSAGE = "Welcome to Nerd Trivia! You can start a quiz or ask for a random trivia question.  What would you like to do?";  
+var WELCOME_MESSAGE = "Welcome to Nerd Trivia! You can start a quiz or ask for a random trivia question. What would you like to do?";  
 
 //This is the message a user will hear when they start random trivia.
-var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question. For true or false questions reply with true or false. For multiple choice questions, reply with the letter.";
+var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question. For true or false questions reply with true or false. For multiple choice questions, reply with the letter. <break strength='strong'/>";
 
 //This is the message a user will hear when they start a quiz.
-var START_QUIZ_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with the letter. I will ask you " + urlProperties.numberOfQuestions + " questions about";
+var START_QUIZ_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with the letter. <break strength='strong'/> I will ask you " + urlProperties.numberOfQuestions + " questions about";
 
 //This is the message a user will hear when they try to cancel or stop the skill, or when they finish a quiz.
 var EXIT_SKILL_MESSAGE = "Thank you for playing Nerd Trivia! Hope to see you again soon!";
@@ -109,7 +109,7 @@ function getQuestion(counter, questionStruct, answerMapping)
     //for random trivia, since we're only asking one question
     if(counter == -1) {
         if(questionStruct.type.toLowerCase() == "boolean") {
-            answerMapping.asnwer = questionStruct.correct_answer;
+            answerMapping.answer = questionStruct.correct_answer;
             return questionStruct.question + " True or False?";
         }
         return getMultipleChoices(questionStruct, answerMapping);  
@@ -142,9 +142,9 @@ function getMultipleChoices(questionStruct, answerMapping)
         }
 
         if(i == (multipleArray.length - 1)) {
-            result += "or " + alphaArray[i] + ". " + multipleArray[i] + ".";
+            result += "or " + alphaArray[i] + ".<break strength='strong'/>" + multipleArray[i] + ".";
         } else {
-            result += alphaArray[i] + ". " + multipleArray[i] + ". ";
+            result += alphaArray[i] + ".<break strength='strong'/>" + multipleArray[i] + ". ";
         }
     }
 
@@ -167,16 +167,16 @@ function shuffleArray(array)
 function getAnswer(answer, answerMapping) 
 { 
     if(answer == "True" || answer == "False") {
-        return "The answer is " + answer + ". "; 
+        return " The answer is " + answer + ". "; 
     }
-    return "The answer is " + answerMapping.answer + ". " + answer + ". "; 
+    return " The answer is " + answerMapping.answer + ".<break strength='strong'/>" + answer + ". "; 
 }
 
 //Gets the current score during a quiz.
 function getCurrentScore(score, counter) { return "Your current score is " + score + " out of " + (counter * 10) + ". "; }
 
 //Gets the final score after a quiz finishes.
-function getFinalScore(score, counter) { return "Your final score is " + score + " out of " + (counter * 10) + ". "; }
+function getFinalScore(score, counter) { return "Your final score is " + score + " out of " + (counter * 10) + "."; }
 
 //Returns speechcons to use for answer reponses.
 function getSpeechCon(type)
@@ -228,8 +228,24 @@ function format(value)
 {
     var result = decodeURIComponent(value);
 
-    if(result.includes("-")) {
-        result = result.replace(/-/g, " ");
+    if(result.includes("%")) {
+        result = result.replace(/-/g, " percent ");
+    }
+
+    if(result.includes(">")) {
+        result = result.replace(/-/g, " greater than ");
+    }
+
+    if(result.includes("<")) {
+        result = result.replace(/-/g, " less than ");
+    }
+
+    if(result.includes("&")) {
+        result = result.replace(/-/g, " and ");
+    }
+
+    if(result.includes("_")) {
+        result = result.replace(/-/g, " blank ");
     }
 
     return result;
@@ -351,7 +367,7 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         }
 
         response += getAnswer(answer, answerMapping);
-        this.emit(":tell", response + " " + EXIT_SKILL_MESSAGE);
+        this.emit(":tell", response + EXIT_SKILL_MESSAGE);
     },
     "QuizIntent": function() {
         this.handler.state = states.QUIZ;
