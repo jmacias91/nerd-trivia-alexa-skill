@@ -22,7 +22,13 @@ var APP_ID = undefined;
 const categories = [
 					{CatName: "video games",  CatID: 15},
 					{CatName: "books",        CatID: 10},
-					{CatName: "films",        CatID: 11}
+					{CatName: "films",        CatID: 11},
+                    {CatName: "history",      CatID: 23},
+                    {CatName: "comics",       CatID: 29},
+                    {CatName: "anime",        CatID: 31},
+                    {CatName: "cartoons",     CatID: 32},
+                    {CatName: "television",   CatID: 14},
+                    {CatName: "mythology",    CatID: 20}
 				   ];
 
 /**
@@ -52,10 +58,10 @@ var speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Dar
 var WELCOME_MESSAGE = "Welcome to Nerd Trivia! You can start a quiz or ask for a random trivia question.  What would you like to do?";  
 
 //This is the message a user will hear when they start random trivia.
-var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question.";
+var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question. For true or false questions reply with true or false. For multiple choice questions, reply with the letter.";
 
 //This is the message a user will hear when they start a quiz.
-var START_QUIZ_MESSAGE = "OK. I will ask you " + urlProperties.numberOfQuestions + " questions about";
+var START_QUIZ_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with the letter. I will ask you " + urlProperties.numberOfQuestions + " questions about";
 
 //This is the message a user will hear when they try to cancel or stop the skill, or when they finish a quiz.
 var EXIT_SKILL_MESSAGE = "Thank you for playing Nerd Trivia! Hope to see you again soon!";
@@ -98,27 +104,47 @@ function urlBuilder()
 function getRandom(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
 //Gets question from data retrieved from Open Trivia DB.
-function getQuestion(counter, questionStruct) 
+function getQuestion(counter, questionStruct, answerMapping) 
 { 
+    //for random trivia, since we're only asking one question
+    if(counter == -1) {
+        if(questionStruct.type.toLowerCase() == "boolean") {
+            answerMapping.asnwer = questionStruct.correct_answer;
+            return questionStruct.question + " True or False?";
+        }
+        return getMultipleChoices(questionStruct, answerMapping);  
+    }
+
     if(questionStruct.type.toLowerCase() == "boolean") {
+        answerMapping.answer = questionStruct.correct_answer;
         return "Here is your " + counter + "th question. " + questionStruct.question + " " + "True or False?";
     }
 
-    return "Here is your " + counter + "th question. " + getMultipleChoices(questionStruct); 
+    return "Here is your " + counter + "th question. " + getMultipleChoices(questionStruct, answerMapping); 
 }
 
 //Gets choices for multiple choice questions.
-function getMultipleChoices(questionStruct){
+function getMultipleChoices(questionStruct, answerMapping) 
+{
     var multipleArray = questionStruct.incorrect_answers;
     multipleArray.push(questionStruct.correct_answer);
     multipleArray = shuffleArray(multipleArray);
 
+    var alphaArray = [
+                        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
+                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+                     ];
+
     var result = "";
     for(var i = 0; i < multipleArray.length; i++) {
+        if(multipleArray[i] == questionStruct.correct_answer) {
+            answerMapping.answer = alphaArray[i];
+        }
+
         if(i == (multipleArray.length - 1)) {
-            result += "or " + multipleArray[i] + ".";
+            result += "or " + alphaArray[i] + ". " + multipleArray[i] + ".";
         } else {
-            result += multipleArray[i] + ". ";
+            result += alphaArray[i] + ". " + multipleArray[i] + ". ";
         }
     }
 
@@ -126,7 +152,8 @@ function getMultipleChoices(questionStruct){
 }
 
 //Shuffle array helper method.
-function shuffleArray(array) {
+function shuffleArray(array) 
+{
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = array[i];
@@ -137,7 +164,13 @@ function shuffleArray(array) {
 }
 
 //Gets answer for corresponding question.
-function getAnswer(answer) { return "The answer is " + answer + ". "; }
+function getAnswer(answer, answerMapping) 
+{ 
+    if(answer == "True" || answer == "False") {
+        return "The answer is " + answer + ". "; 
+    }
+    return "The answer is " + answerMapping.answer + ". " + answer + ". "; 
+}
 
 //Gets the current score during a quiz.
 function getCurrentScore(score, counter) { return "Your current score is " + score + " out of " + (counter * 10) + ". "; }
@@ -287,13 +320,10 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
     "AskQuestion": function() {
         var speechOutput = START_RANDOM_TRIVIA_MESSAGE + " ";
         this.attributes["currentQuestion"] = this.attributes["questionList"][0]; 
+        this.attributes["answerMapping"] = {answer: null};
 
         var result = "";
-        if(this.attributes["currentQuestion"].type.toLowerCase() == "multiple") {
-            result = getMultipleChoices(this.attributes["currentQuestion"]);
-        } else {
-            result = this.attributes["currentQuestion"].question + " True or False?";
-        }
+        result = getQuestion(-1, this.attributes["currentQuestion"], this.attributes["answerMapping"]);
 
         speechOutput += result;
 
@@ -306,9 +336,10 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         }
         var response = "";
         var answer = this.attributes["currentQuestion"].correct_answer;
+        var answerMapping = this.attributes["answerMapping"];
         var userPick = this.event.request.intent.slots;
         
-        var userAnswer = compareAnswers(userPick, answer);
+        var userAnswer = compareAnswers(userPick, answerMapping.answer);
 
         if (userAnswer) {
             response = getSpeechCon(true);
@@ -319,8 +350,7 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
             response += "That's incorrect!";
         }
 
-        response += getAnswer(answer);
-
+        response += getAnswer(answer, answerMapping);
         this.emit(":tell", response + " " + EXIT_SKILL_MESSAGE);
     },
     "QuizIntent": function() {
@@ -412,7 +442,8 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
 
         this.attributes["currentQuestion"] = this.attributes["questionList"][this.attributes["counter"]];
         this.attributes["counter"]++;
-        var result = getQuestion(this.attributes["counter"], this.attributes["currentQuestion"]);
+        this.attributes["answerMapping"] = {answer: null};
+        var result = getQuestion(this.attributes["counter"], this.attributes["currentQuestion"], this.attributes["answerMapping"]);
         speechOutput = this.attributes["response"] + result;
 
         this.emit(":ask", speechOutput, REPROMPT_MESSAGE);
@@ -425,9 +456,10 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
 
     	var response = "";
         var answer = this.attributes["currentQuestion"].correct_answer;
+        var answerMapping = this.attributes["answerMapping"];
         var userPick = this.event.request.intent.slots;
         
-        var userAnswer = compareAnswers(userPick, answer);
+        var userAnswer = compareAnswers(userPick, answerMapping.answer);
 
         if (userAnswer) {
             response = getSpeechCon(true);
@@ -439,7 +471,7 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
             response += "That's incorrect!";
         }
 
-        response += getAnswer(answer);
+        response += getAnswer(answer, answerMapping);
 
     	if (this.attributes["counter"] < urlProperties.numberOfQuestions) {
             response += getCurrentScore(this.attributes["quizscore"], this.attributes["counter"]);
