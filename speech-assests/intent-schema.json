@@ -22,8 +22,8 @@
           "type": "LIST_OF_BOOLS"
         },
         {
-          "name": "Alphabet",
-          "type": "LIST_OF_ALPHABET" 
+          "name": "Number",
+          "type": "AMAZON.NUMBER"
         }
       ],
       "intent": "AnswerIntent"

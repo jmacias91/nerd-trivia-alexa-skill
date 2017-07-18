@@ -5,12 +5,12 @@ AnswerIntent it is {Boolean}
 AnswerIntent it's {Boolean}
 AnswerIntent the answer is {Boolean}
 
-AnswerIntent {Alphabet}
-AnswerIntent that is {Alphabet}
-AnswerIntent that's {Alphabet}
-AnswerIntent it is {Alphabet}
-AnswerIntent it's {Alphabet}
-AnswerIntent the answer is {Alphabet}
+AnswerIntent {Number}
+AnswerIntent that is {Number}
+AnswerIntent that's {Number}
+AnswerIntent it is {Number}
+AnswerIntent it's {Number}
+AnswerIntent the answer is {Number}
 
 CategoryIntent {Category}
 CategoryIntent let's go with a {Category} question

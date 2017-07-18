@@ -58,20 +58,34 @@ var speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Dar
 var WELCOME_MESSAGE = "Welcome to Nerd Trivia! You can start a quiz or ask for a random trivia question. What would you like to do?";  
 
 //This is the message a user will hear when they start random trivia.
-var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question. For true or false questions reply with true or false. For multiple choice questions, reply with the letter. <break strength='strong'/>";
+var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question. For true or false questions reply with true or false. For multiple choice questions, reply with a number. <break strength='strong'/>";
 
 //This is the message a user will hear when they start a quiz.
-var START_QUIZ_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with the letter. <break strength='strong'/> I will ask you " + urlProperties.numberOfQuestions + " questions about";
+var START_QUIZ_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with a number. <break strength='strong'/> I will ask you " + urlProperties.numberOfQuestions + " questions about";
 
-//This is the message a user will hear when they try to cancel or stop the skill, or when they finish a quiz.
+//This is the message a user will hear if they try to pick another category once a quiz has started.
+var QUIZ_IN_PROGRESS = "I'm sorry, a quiz is already in progress. Please answer the question or ask me to start over";
+
+//This is the message a user will hear if they try to start a quiz once random trivia has started.
+var TRIVIA_IN_PROGRESS = "I'm sorry, random trivia is already in progress. Please answer the question or ask me to start over.";
+
+//This is the message a user will hear at the end of a random trivia round.
+var PLAY_TRIVIA_AGAIN = "<break time='500ms'/> Thanks for playing! Ready for another? If you want another question say, give me random trivia. Or ask me to start over and the game will restart.";
+
+//This is the message a user will hear at the end of a quiz round.
+var PLAY_QUIZ_AGAIN = "<break time='500ms'/> Thanks for playing! That was a fun quiz! If you want to take another quiz, pick a new category.";
+
+//This is the message a user will hear when they try to cancel or stop the skill.
 var EXIT_SKILL_MESSAGE = "Thank you for playing Nerd Trivia! Hope to see you again soon!";
 
-
 //This is the message a user will hear after getting a question.
-var REPROMPT_MESSAGE = "I´m waiting for your answer. If you need help please ask!";
+var REPROMPT_MESSAGE = "I´m waiting for your answer. For true or false questions reply with true or false. For multiple choice questions, reply with a number.";
 
 //This is the message a user will hear when they ask Alexa for help.
 var HELP_MESSAGE = "I´m a trivia app. You can ask me for a random trivia question and I´ll find an interesting trivia question for you! You can also play a game by asking me to start a quiz and I´ll quiz you to test your knowledge. What would you like to do?";
+
+//This is the message a user will hear when Alexa recieves an unhandled intent request.
+var UNHANDLED_MESSAGE = "I'm sorry, I didn't catch that. If you're trying to answer a question, please try again. Or you can ask me to start over and the game will restart";
 
 //This is the message a user will hear if there's a database error.
 var DB_ERROR_MESSAGE = "There was a problem retrieving questions from database. Please try again.";
@@ -104,49 +118,54 @@ function urlBuilder()
 function getRandom(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 
 //Gets question from data retrieved from Open Trivia DB.
-function getQuestion(counter, questionStruct, answerMapping) 
+function getQuestion(counter, questionStruct, answerMapping, card) 
 { 
     //for random trivia, since we're only asking one question
     if(counter == -1) {
         if(questionStruct.type.toLowerCase() == "boolean") {
             answerMapping.answer = questionStruct.correct_answer;
+            var response = questionStruct.question + "\n" + "True or False?";
+            buildCardResponse("Question", response, card);
             return questionStruct.question + " True or False?";
         }
-        return getMultipleChoices(questionStruct, answerMapping);  
+        return getMultipleChoices(questionStruct, answerMapping, card);  
     }
 
     if(questionStruct.type.toLowerCase() == "boolean") {
         answerMapping.answer = questionStruct.correct_answer;
+        var response = questionStruct.question + "\n" + "True or False?";
+        buildCardResponse("Question", response, card);
         return "Here is your " + counter + "th question. " + questionStruct.question + " " + "True or False?";
     }
 
-    return "Here is your " + counter + "th question. " + getMultipleChoices(questionStruct, answerMapping); 
+    return "Here is your " + counter + "th question. " + getMultipleChoices(questionStruct, answerMapping, card);
 }
 
 //Gets choices for multiple choice questions.
-function getMultipleChoices(questionStruct, answerMapping) 
+function getMultipleChoices(questionStruct, answerMapping, card) 
 {
     var multipleArray = questionStruct.incorrect_answers;
     multipleArray.push(questionStruct.correct_answer);
     multipleArray = shuffleArray(multipleArray);
 
-    var alphaArray = [
-                        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
-                        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
-                     ];
-
+    var response = questionStruct.question + "\n";
     var result = "";
+
     for(var i = 0; i < multipleArray.length; i++) {
         if(multipleArray[i] == questionStruct.correct_answer) {
-            answerMapping.answer = alphaArray[i];
+            answerMapping.answer = String(i + 1);
         }
 
         if(i == (multipleArray.length - 1)) {
-            result += "or " + alphaArray[i] + ".<break strength='strong'/>" + multipleArray[i] + ".";
+            result += "or " + String(i + 1) + ".<break strength='strong'/>" + multipleArray[i] + ".";
         } else {
-            result += alphaArray[i] + ".<break strength='strong'/>" + multipleArray[i] + ". ";
+            result += String(i + 1) + ".<break strength='strong'/>" + multipleArray[i] + ". ";
         }
+
+        response += String(i + 1) + ". " + multipleArray[i] + "\n";
     }
+
+    buildCardResponse("Question", response, card);
 
     return questionStruct.question + " " + result;
 }
@@ -172,6 +191,9 @@ function getAnswer(answer, answerMapping)
     return " The answer is " + answerMapping.answer + ".<break strength='strong'/>" + answer + ". "; 
 }
 
+//Gets the card response
+function buildCardResponse(title, content, card) { card.cardTitle = title; card.cardContent = content; }
+
 //Gets the current score during a quiz.
 function getCurrentScore(score, counter) { return "Your current score is " + score + " out of " + (counter * 10) + ". "; }
 
@@ -187,16 +209,20 @@ function getSpeechCon(type)
 }
 
 //Returns list of categories.
-function getCategoryPrompt()
+function getCategoryPrompt(card)
 {
 	var speech = "Please choose a category. Here is the list you can choose from.";
+    var response = "";
+
 	for(var i = 0; i < categories.length; i++) {
 		if(i == (categories.length - 1)) {
 			speech += " and " + categories[i].CatName + ".";
 		} else {
 			speech += " " + categories[i].CatName + ".";
 		}
+        response += categories[i].CatName + "\n";
 	}
+    buildCardResponse("Categories", response, card);
 	return speech;
 }
 
@@ -291,6 +317,9 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         this.emit(":ask", WELCOME_MESSAGE, HELP_MESSAGE);
     },
     "RandomTriviaIntent": function() {
+         if(this.attributes["currentQuestion"] != undefined) {
+            this.emit(":ask", TRIVIA_IN_PROGRESS, REPROMPT_MESSAGE);
+        }
         this.emitWithState("StartRandomTrivia");
     },
     "StartRandomTrivia": function() {
@@ -337,13 +366,14 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         var speechOutput = START_RANDOM_TRIVIA_MESSAGE + " ";
         this.attributes["currentQuestion"] = this.attributes["questionList"][0]; 
         this.attributes["answerMapping"] = {answer: null};
+        this.attributes["card"] = {cardTitle: null, cardContent: null};
 
         var result = "";
-        result = getQuestion(-1, this.attributes["currentQuestion"], this.attributes["answerMapping"]);
+        result = getQuestion(-1, this.attributes["currentQuestion"], this.attributes["answerMapping"], this.attributes["card"]);
 
         speechOutput += result;
 
-        this.emit(":ask", speechOutput, REPROMPT_MESSAGE);
+        this.emit(":askWithCard", speechOutput, REPROMPT_MESSAGE, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
     },
     "AnswerIntent": function() {
         if(this.attributes["currentQuestion"] == undefined) {
@@ -367,11 +397,19 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         }
 
         response += getAnswer(answer, answerMapping);
-        this.emit(":tell", response + EXIT_SKILL_MESSAGE);
+        this.attributes["currentQuestion"] = undefined;
+        this.emit(":ask", response + PLAY_TRIVIA_AGAIN, PLAY_TRIVIA_AGAIN);
     },
     "QuizIntent": function() {
+        if(this.attributes["currentQuestion"] != undefined) {
+            this.emit(":ask", TRIVIA_IN_PROGRESS, REPROMPT_MESSAGE);
+        }
         this.handler.state = states.QUIZ;
         this.emitWithState("Quiz");
+    },
+    "AMAZON.StartOverIntent": function() {
+        this.attributes["currentQuestion"] = undefined;
+        this.emitWithState("Start");
     },
     "AMAZON.StopIntent": function() {
         this.emit(":tell", EXIT_SKILL_MESSAGE);
@@ -383,7 +421,7 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         this.emit(":ask", HELP_MESSAGE, HELP_MESSAGE);
     },
     "Unhandled": function() {
-        this.emitWithState("Start");
+        this.emit(":ask", UNHANDLED_MESSAGE, UNHANDLED_MESSAGE);
     }
 });
 
@@ -393,13 +431,31 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         this.attributes["counter"] = 0;
         this.attributes["quizscore"] = 0;
         this.attributes["category"] = "";
-        this.emit(":ask", getCategoryPrompt(), getCategoryPrompt());
+        this.attributes["card"] = {cardTitle: null, cardContent: null};
+
+        var response = getCategoryPrompt(this.attributes["card"]);
+        this.emit(":askWithCard", response, response, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
+    },
+    "NewQuiz": function() {
+        var answer = this.attributes["response"];
+        this.attributes["response"] = "";
+        this.attributes["counter"] = 0;
+        this.attributes["quizscore"] = 0;
+        this.attributes["category"] = "";
+        this.attributes["card"] = {cardTitle: null, cardContent: null};
+
+        var response = getCategoryPrompt(this.attributes["card"]);
+        this.emit(":askWithCard", answer + " " + PLAY_QUIZ_AGAIN, response, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
     },
     "CategoryIntent": function() {
        var userPick = this.event.request.intent.slots.Category;
+
+       if(this.attributes["counter"] > 0) {
+            this.emit(":ask", QUIZ_IN_PROGRESS, REPROMPT_MESSAGE);
+       }
       
         if(!getCategory(userPick)) {
-           this.emitWithState("Quiz");
+            this.emitWithState("Quiz");
         } else {
             this.attributes["category"] = userPick.value.toString().toLowerCase();
             this.emitWithState("GetQuestions");
@@ -459,15 +515,15 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         this.attributes["currentQuestion"] = this.attributes["questionList"][this.attributes["counter"]];
         this.attributes["counter"]++;
         this.attributes["answerMapping"] = {answer: null};
-        var result = getQuestion(this.attributes["counter"], this.attributes["currentQuestion"], this.attributes["answerMapping"]);
+        var result = getQuestion(this.attributes["counter"], this.attributes["currentQuestion"], this.attributes["answerMapping"], this.attributes["card"]);
         speechOutput = this.attributes["response"] + result;
 
-        this.emit(":ask", speechOutput, REPROMPT_MESSAGE);
+        this.emit(":askWithCard", speechOutput, REPROMPT_MESSAGE, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
     },
     "AnswerIntent": function() {
         if(this.attributes["category"] == ""){
-            var response = "I don't know too much about that. If you want to take a quiz.";
-            this.emit(":ask", response + " " + getCategoryPrompt(), getCategoryPrompt());
+            var response = "I don't know too much about that. If you want to take a quiz." + " " + getCategoryPrompt(this.attributes["card"]);
+            this.emit(":askWithCard", response, response, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
         }
 
     	var response = "";
@@ -496,7 +552,8 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         }
         else {
             response += getFinalScore(this.attributes["quizscore"], this.attributes["counter"]);
-            this.emit(":tell", response + " " + EXIT_SKILL_MESSAGE);
+            this.attributes["response"] = response;
+            this.emitWithState("NewQuiz");
         } 
     },
     "AMAZON.StartOverIntent": function() {
@@ -512,7 +569,7 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         this.emit(":ask", HELP_MESSAGE, HELP_MESSAGE);
     },
     "Unhandled": function() {
-        this.emitWithState("AnswerIntent");
+        this.emit(":ask", UNHANDLED_MESSAGE, UNHANDLED_MESSAGE);
     }
 });
 
