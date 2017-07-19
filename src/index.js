@@ -20,28 +20,27 @@ var APP_ID = undefined;
 //Open Trivia DB and add the category name and id here. Then update the
 //Alexa skill list-of-categories-slotvalues in speech-assests.
 const categories = [
-					{CatName: "video games",  CatID: 15},
-					{CatName: "books",        CatID: 10},
-					{CatName: "films",        CatID: 11},
-                    {CatName: "comics",       CatID: 29},
-                    {CatName: "anime",        CatID: 31},
-                    {CatName: "cartoons",     CatID: 32},
-                    {CatName: "television",   CatID: 14},
-                    {CatName: "history",      CatID: 23},
-                    {CatName: "mythology",    CatID: 20}
+					{CatName: "Video Games",  CatID: 15},
+					{CatName: "Books",        CatID: 10},
+					{CatName: "Films",        CatID: 11},
+                    {CatName: "Comics",       CatID: 29},
+                    {CatName: "Anime",        CatID: 31},
+                    {CatName: "Cartoons",     CatID: 32},
+                    {CatName: "Television",   CatID: 14},
+                    {CatName: "History",      CatID: 23},
+                    {CatName: "Mythology",    CatID: 20}
 				   ];
 
 /**
  * Holds url properties used to create Open Trivia DB Request in urlBuilder()
- * @param {int}    catID             ID the API uses to define a particular category. Set to
- *                                   "random" during RandomTriviaIntent in order to choose a random category from list.
+ * @param {int}    catID             ID the API uses to define a particular category.
  * @param {string} difficulty        Difficulty of question. To be implemented in later versions.
  * @param {string} type              Open Trivia DB supports true/false and multiple choice.
  *		                             Can be set to boolean, multiple, or any.
  * @param {int}    numberOfQuestions Number of questions to ask on the quiz.
  */
 var urlProperties = {
-						catID: null, difficulty: null, type: "any", numberOfQuestions: 6
+						catID: "", difficulty: "", type: "any", numberOfQuestions: 6
 					};
 
 
@@ -58,7 +57,7 @@ var speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Dar
 var WELCOME_MESSAGE = "Welcome to Nerd Trivia! You can start a quiz or ask for a random trivia question. What would you like to do?";  
 
 //This is the message a user will hear when they start random trivia.
-var START_RANDOM_TRIVIA_MESSAGE = "OK. Here is a random trivia question. For true or false questions reply with true or false. For multiple choice questions, reply with a number. <break strength='strong'/>";
+var START_RANDOM_TRIVIA_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with a number. <break strength='strong'/> Here is a random trivia question about";
 
 //This is the message a user will hear when they start a quiz.
 var START_QUIZ_MESSAGE = "OK. For true or false questions reply with true or false. For multiple choice questions, reply with a number. <break strength='strong'/> I will ask you " + urlProperties.numberOfQuestions + " questions about";
@@ -91,21 +90,20 @@ var UNHANDLED_MESSAGE = "I'm sorry, I didn't catch that. If you're trying to ans
 var DB_ERROR_MESSAGE = "There was a problem retrieving questions from database. Please try again.";
 
 //Builds url for random trivia or quiz.
-function urlBuilder() 
+function urlBuilder(mode) 
 {
-    var url = null;
+    var url = "";
 
-    if(urlProperties.catID == "random") {
-        var min = 0;
-        var max = categories.length;
-        var randomIndex = getRandom(min, max);
-
+    if(mode == "random") {
+        
         if(urlProperties.type == "any") {
-            url = "https://opentdb.com/api.php?amount=1&category=" + categories[randomIndex].CatID + "&encode=url3986";
+            url = "https://opentdb.com/api.php?amount=1&category=" + urlProperties.catID + "&encode=url3986";
         }else {
-            url = "https://opentdb.com/api.php?amount=1&category=" + categories[randomIndex].CatID + "&type=" + urlProperties.type + "&encode=url3986";
+            url = "https://opentdb.com/api.php?amount=1&category=" + urlProperties.catID + "&type=" + urlProperties.type + "&encode=url3986";
         }
-    }else if(urlProperties.type == "any") {
+    }
+
+    if(urlProperties.type == "any") {
         url = "https://opentdb.com/api.php?amount=" + urlProperties.numberOfQuestions + "&category=" + urlProperties.catID + "&encode=url3986";
     }else {
         url = "https://opentdb.com/api.php?amount=" + urlProperties.numberOfQuestions + "&category=" + urlProperties.catID + "&type=" + urlProperties.type + "&encode=url3986";
@@ -125,7 +123,7 @@ function getQuestion(counter, questionStruct, answerMapping, card)
         if(questionStruct.type.toLowerCase() == "boolean") {
             answerMapping.answer = questionStruct.correct_answer;
             var response = questionStruct.question + "\n" + "True or False?";
-            buildCardResponse("Question", response, card);
+            buildCardResponse(response, card);
             return questionStruct.question + " True or False?";
         }
         return getMultipleChoices(questionStruct, answerMapping, card);  
@@ -134,7 +132,7 @@ function getQuestion(counter, questionStruct, answerMapping, card)
     if(questionStruct.type.toLowerCase() == "boolean") {
         answerMapping.answer = questionStruct.correct_answer;
         var response = questionStruct.question + "\n" + "True or False?";
-        buildCardResponse("Question", response, card);
+        buildCardResponse(response, card);
         return "Here is your " + counter + "th question. " + questionStruct.question + " " + "True or False?";
     }
 
@@ -165,7 +163,7 @@ function getMultipleChoices(questionStruct, answerMapping, card)
         response += String(i + 1) + ". " + multipleArray[i] + "\n";
     }
 
-    buildCardResponse("Question", response, card);
+    buildCardResponse(response, card);
 
     return questionStruct.question + " " + result;
 }
@@ -192,7 +190,7 @@ function getAnswer(answer, answerMapping)
 }
 
 //Gets the card response
-function buildCardResponse(title, content, card) { card.cardTitle = title; card.cardContent = content; }
+function buildCardResponse(content, card) { card.cardContent = content; }
 
 //Gets the current score during a quiz.
 function getCurrentScore(score, counter) { return "Your current score is " + score + " out of " + (counter * 10) + ". "; }
@@ -222,7 +220,7 @@ function getCategoryPrompt(card)
 		}
         response += categories[i].CatName + "\n";
 	}
-    buildCardResponse("Categories", response, card);
+    buildCardResponse(response, card);
 	return speech;
 }
 
@@ -323,11 +321,18 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         this.emitWithState("StartRandomTrivia");
     },
     "StartRandomTrivia": function() {
-        urlProperties.catID = "random";
+        this.attributes["mode"] = "random";
+        var min = 0;
+        var max = categories.length;
+        var randomIndex = getRandom(min, max);
+        var category = categories[randomIndex];
+        urlProperties.catID = category.CatID;
+        this.attributes["category"] = category.CatName;
+
         var body = "";
         var data = "";
 
-        const url = urlBuilder();
+        const url = urlBuilder(this.attributes["mode"]);
 
 
         var req = https.request(url, (res) => {
@@ -363,10 +368,11 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
 
     },
     "AskQuestion": function() {
-        var speechOutput = START_RANDOM_TRIVIA_MESSAGE + " ";
+        var speechOutput = START_RANDOM_TRIVIA_MESSAGE + " " + this.attributes["category"] + ". ";
         this.attributes["currentQuestion"] = this.attributes["questionList"][0]; 
-        this.attributes["answerMapping"] = {answer: null};
-        this.attributes["card"] = {cardTitle: null, cardContent: null};
+        this.attributes["answerMapping"] = {answer: ""};
+        this.attributes["card"] = {cardTitle: "", cardContent: ""};
+        this.attributes["card"].cardTitle = this.attributes["category"] + " " + "Question";
 
         var result = "";
         result = getQuestion(-1, this.attributes["currentQuestion"], this.attributes["answerMapping"], this.attributes["card"]);
@@ -427,24 +433,30 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
 
 var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
     "Quiz": function() {
+        this.attributes["mode"] = "quiz";
         this.attributes["response"] = "";
         this.attributes["counter"] = 0;
         this.attributes["quizscore"] = 0;
         this.attributes["category"] = "";
-        this.attributes["card"] = {cardTitle: null, cardContent: null};
+        this.attributes["card"] = {cardTitle: "", cardContent: ""};
 
+        this.attributes["card"].cardTitle = "Categories";
         var response = getCategoryPrompt(this.attributes["card"]);
+
         this.emit(":askWithCard", response, response, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
     },
     "NewQuiz": function() {
         var answer = this.attributes["response"];
+        this.attributes["mode"] = "quiz";
         this.attributes["response"] = "";
         this.attributes["counter"] = 0;
         this.attributes["quizscore"] = 0;
         this.attributes["category"] = "";
-        this.attributes["card"] = {cardTitle: null, cardContent: null};
+        this.attributes["card"] = {cardTitle: "", cardContent: ""};
 
+        this.attributes["card"].cardTitle = "Categories";
         var response = getCategoryPrompt(this.attributes["card"]);
+
         this.emit(":askWithCard", answer + " " + PLAY_QUIZ_AGAIN, response, this.attributes["card"].cardTitle, this.attributes["card"].cardContent);
     },
     "CategoryIntent": function() {
@@ -457,13 +469,14 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         if(!getCategory(userPick)) {
             this.emitWithState("Quiz");
         } else {
-            this.attributes["category"] = userPick.value.toString().toLowerCase();
+            this.attributes["category"] = userPick.value.toString();
             this.emitWithState("GetQuestions");
         }
     },
     "GetQuestions": function() {
        for(var i = 0; i < categories.length; i++) {
-            if(categories[i].CatName.toString().toLowerCase() == this.attributes["category"]){
+            if(categories[i].CatName.toLowerCase() == this.attributes["category"].toLowerCase()){
+                this.attributes["category"] = categories[i].CatName;
                 urlProperties.catID = categories[i].CatID;
             }
        }    
@@ -471,7 +484,7 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         var body = "";
         var data = "";
 
-        const url = urlBuilder();
+        const url = urlBuilder(this.attributes["mode"]);
        
         var req = https.request(url, (res) => {
 
@@ -514,7 +527,9 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
 
         this.attributes["currentQuestion"] = this.attributes["questionList"][this.attributes["counter"]];
         this.attributes["counter"]++;
-        this.attributes["answerMapping"] = {answer: null};
+        this.attributes["answerMapping"] = {answer: ""};
+        this.attributes["card"].cardTitle = this.attributes["category"] + " " + "Question";
+
         var result = getQuestion(this.attributes["counter"], this.attributes["currentQuestion"], this.attributes["answerMapping"], this.attributes["card"]);
         speechOutput = this.attributes["response"] + result;
 
