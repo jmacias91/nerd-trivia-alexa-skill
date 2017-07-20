@@ -39,6 +39,9 @@
     },
     {
       "intent": "AMAZON.StartOverIntent"
+    },
+    {
+      "intent": "AMAZON.RepeatIntent"
     }
   ]
 }
