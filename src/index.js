@@ -40,8 +40,8 @@ const categories =  [
  * @param {int}    numberOfQuestions Number of questions to ask on the quiz.
  */
 var urlProperties = {
-						catID: "", difficulty: "", type: "any", numberOfQuestions: 6
-					};
+                        catID: "", difficulty: "", type: "any", numberOfQuestions: 6
+                    };
 
 
 //List of speechcons to use when a user answers question correctly.
@@ -625,7 +625,9 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         this.emit(":ask", REPEAT_ERROR_MESSAGE + " " + HELP_MESSAGE, HELP_MESSAGE); 
     },
     "AMAZON.StartOverIntent": function() {
-        this.emitWithState("Quiz");
+        this.attributes["hasStarted"] = hasStarted.STOP;
+        this.handler.state = states.START;
+        this.emitWithState("Start");
     },
     "AMAZON.StopIntent": function() {
         this.emit(":tell", EXIT_SKILL_MESSAGE);
