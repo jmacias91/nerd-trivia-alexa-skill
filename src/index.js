@@ -63,10 +63,10 @@ var START_RANDOM_TRIVIA_MESSAGE = "Ok. Here is a random trivia question about";
 var START_QUIZ_MESSAGE = "Ok. I will ask you " + urlProperties.numberOfQuestions + " questions about";
 
 //This is the message a user will hear if they try to pick another category, start another quiz, or start random trivia, once a quiz has started.
-var QUIZ_IN_PROGRESS = "For true or false questions reply with true or false. For multiple choice questions, reply with a number. Or ask me to start over to restart the game";
+var QUIZ_IN_PROGRESS = "For yes or no questions reply with yes or no. For multiple choice questions, reply with a number. Or ask me to start over to restart the game";
 
 //This is the message a user will hear if they try to start a quiz, or another random trivia session once random trivia has started.
-var TRIVIA_IN_PROGRESS = "For true or false questions reply with true or false. For multiple choice questions, reply with a number. Or ask me to start over to restart the game.";
+var TRIVIA_IN_PROGRESS = "For yes or no questions reply with yes or no. For multiple choice questions, reply with a number. Or ask me to start over to restart the game.";
 
 //This is the message a user will hear at the end of a random trivia round.
 var PLAY_TRIVIA_AGAIN = "<break time='500ms'/> Thanks for playing! Ready for another? If you want another question say, give me random trivia. Or you can ask me to start a quiz.";
@@ -78,13 +78,13 @@ var PLAY_QUIZ_AGAIN = "<break time='500ms'/> Thanks for playing! That was a fun 
 var EXIT_SKILL_MESSAGE = "Thank you for playing Nerd Trivia! Hope to see you again soon!";
 
 //This is the message a user will hear after getting a question.
-var REPROMPT_MESSAGE = "I´m waiting for your answer. For true or false questions reply with true or false. For multiple choice questions, reply with a number.";
+var REPROMPT_MESSAGE = "I´m waiting for your answer. For yes or no questions reply with yes or no. For multiple choice questions, reply with a number.";
 
-//This is the message a user will hear if they answer a multiple choice question with true or false;
+//This is the message a user will hear if they answer a multiple choice question with yes or no;
 var MULTIPLE_MESSAGE = "Please answer with the number matching the answer you want to give.";
 
-//This is the message a user will hear if they answer a true or false question with a number;
-var BOOLEAN_MESSAGE = "Please answer with true or false.";
+//This is the message a user will hear if they answer a yes or no question with a number;
+var BOOLEAN_MESSAGE = "Please answer with yes or no.";
 
 //This is the message a user will hear when they ask Alexa for help.
 var HELP_MESSAGE = "I´m a trivia app. You can ask me for a random trivia question and I´ll find an interesting trivia question for you! You can also play a game by asking me to start a quiz and I´ll quiz you to test your knowledge. What would you like to do?";
@@ -93,7 +93,7 @@ var HELP_MESSAGE = "I´m a trivia app. You can ask me for a random trivia questi
 var REPEAT_ERROR_MESSAGE = "I'm sorry, it seems like there are no active quizzes or random trivia.";
 
 //This is the message a user will hear when Alexa recieves an unhandled intent request.
-var UNHANDLED_MESSAGE = "I'm sorry, I didn't catch that. For true or false questions reply with true or false. For multiple choice questions, reply with a number. Or you can ask me to start over to restart the game";
+var UNHANDLED_MESSAGE = "I'm sorry, I didn't catch that. For yes or no questions reply with yes or no. For multiple choice questions, reply with a number. Or you can ask me to start over to restart the game";
 
 //This is the message a user will hear if there's a database error.
 var DB_ERROR_MESSAGE = "There was a problem retrieving questions from the database. Please try again later.";
@@ -130,19 +130,29 @@ function getQuestion(counter, questionStruct, answerMapping, card)
     //for random trivia, since we're only asking one question
     if (counter == -1) {
         if (questionStruct.type.toLowerCase() == "boolean") {
-            answerMapping.answer = questionStruct.correct_answer;
-            var response = questionStruct.question + "\n" + "True or False?";
+            if (questionStruct.correct_answer.toLowerCase() == "true") {
+                answerMapping.answer = "Yes";
+            } else {
+                answerMapping.answer = "No";
+            }
+
+            var response = questionStruct.question + "\n" + "Yes or No?";
             buildCardResponse(response, card);
-            return questionStruct.question + " True or False?";
+            return questionStruct.question + ". " + "Yes or No?";
         }
         return getMultipleChoices(questionStruct, answerMapping, card);  
     }
 
     if (questionStruct.type.toLowerCase() == "boolean") {
-        answerMapping.answer = questionStruct.correct_answer;
-        var response = questionStruct.question + "\n" + "True or False?";
+        if (questionStruct.correct_answer.toLowerCase() == "true") {
+                answerMapping.answer = "Yes";
+        } else {
+                answerMapping.answer = "No";
+        }
+
+        var response = questionStruct.question + "\n" + "Yes or No?";
         buildCardResponse(response, card);
-        return "Here is your " + counter + "th question. " + questionStruct.question + " " + "True or False?";
+        return "Here is your " + counter + "th question. " + questionStruct.question + ". " + "Yes or No?";
     }
 
     return "Here is your " + counter + "th question. " + getMultipleChoices(questionStruct, answerMapping, card);
@@ -193,7 +203,7 @@ function shuffleArray(array)
 function getAnswer(answer, answerMapping) 
 { 
     if (answer == "True" || answer == "False") {
-        return " The answer is " + answer + ". "; 
+        return " The answer is " + answerMapping.answer + ". ";
     }
     return " The answer is " + answerMapping.answer + ".<break strength='strong'/>" + answer + ". "; 
 }
