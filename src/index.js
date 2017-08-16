@@ -45,13 +45,13 @@ var urlProperties = {
 
 
 //List of speechcons to use when a user answers question correctly.
-var speechConsCorrect = ["Booya", "All righty", "Bam", "Bazinga", "Bingo", "Boom", "Bravo", "Cha Ching", "Cheers", "Dynomite", 
-"Hip hip hooray", "Hurrah", "Hurray", "Huzzah", "Oh dear.  Just kidding.  Hurray", "Kaboom", "Kaching", "Oh snap", "Phew", 
-"Righto", "Way to go", "Well done", "Whee", "Woo hoo", "Yay", "Wowza", "Yowsa", "Yay"];
+var speechConsCorrect = ["Booya", "All righty", "Bam", "Bazinga", "Bingo", "Bravo", "Cha Ching", "Cheers", "Hip hip hooray", "Hurrah", 
+"Hurray", "Huzzah", "Oh dear.  Just kidding.  Hurray", "Kaboom", "Kaching", "Oh snap", "Phew", 
+"Righto", "Way to go", "Well done", "Whee", "Woo hoo", "Yay", "Wowza", "Yowsa"];
 
 //List of speechcons to use when a user answers question incorrectly.
-var speechConsWrong = ["Argh", "Aw man", "Blarg", "Blast", "Boo", "Bummer", "Darn", "D'oh", "Dun dun dun", "Eek", "Honk", "Le sigh",
-"Mamma mia", "Oh boy", "Oh dear", "Oof", "Ouch", "Ruh roh", "Shucks", "Uh oh", "Wah wah", "Whoops a daisy", "Yikes"];
+var speechConsWrong = ["Aw man", "Blarg", "Blast", "Boo", "Darn", "D'oh", "Dun dun dun", "Eek", "Le sigh",
+"Mamma mia", "Oh boy", "Oh dear", "Oof", "Ouch", "Uh oh", "Whoops a daisy"];
 
 //This is the welcome message for when a user starts the skill without a specific intent.
 var WELCOME_MESSAGE = "Welcome to Nerd Trivia! You can start a quiz or ask for a random trivia question. What would you like to do?";  
@@ -92,6 +92,9 @@ var HELP_MESSAGE = "I´m a trivia app. You can ask me for a random trivia questi
 //This is the message a user will hear if RepeatIntent is activated while not in a quiz or trivia session.
 var REPEAT_ERROR_MESSAGE = "I'm sorry, it seems like there are no active quizzes or random trivia.";
 
+//This is the message a user will hear if they try to pick a category without properly starting a quiz.
+var CATEGORY_ERROR_MESSAGE = "If you want to take a quiz, please ask me to start a quiz. You can also say, give me random trivia for a random trivia question!";
+
 //This is the message a user will hear when Alexa recieves an unhandled intent request.
 var UNHANDLED_MESSAGE = "I'm sorry, I didn't catch that. For yes or no questions reply with yes or no. For multiple choice questions, reply with a number. Or you can ask me to start over to restart the game";
 
@@ -119,6 +122,48 @@ function urlBuilder(mode)
     }
 
     return url;
+}
+
+//Makes call to Open Trivia DB.
+const databaseCall = function(url) 
+{
+    return new Promise(function(resolve, reject) {
+
+        var body = "";
+        var data = "";
+
+        var req = https.request(url, (res) => {
+
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                return reject(new Error('statusCode=' + res.statusCode));
+            }
+
+            res.on('data', (d) => {
+                body += d;
+            });
+
+            res.on('end', () => {
+                data = JSON.parse(body);
+                var results = data.results;
+                for (var i = 0; i < results.length; i++) {
+                    results[i].question = format(results[i].question);
+                    results[i].correct_answer = format(results[i].correct_answer);
+                    for (var j = 0; j < results[i].incorrect_answers.length; j++) {
+                        results[i].incorrect_answers[j] = format(results[i].incorrect_answers[j]);
+                    }
+                }
+                resolve(results);
+            });
+
+
+        });
+
+        req.on('error', (e) => {
+            reject(e);
+        });
+
+        req.end();
+    });
 }
 
 //Gets random int inclusive-exclusive.
@@ -284,23 +329,23 @@ function format(value)
     var result = decodeURIComponent(value);
 
     if(result.includes("%")) {
-        result = result.replace(/-/g, " percent ");
+        result = result.replace(/%/g, " percent ");
     }
 
     if(result.includes(">")) {
-        result = result.replace(/-/g, " greater than ");
+        result = result.replace(/>/g, " greater than ");
     }
 
     if(result.includes("<")) {
-        result = result.replace(/-/g, " less than ");
+        result = result.replace(/</g, " less than ");
     }
 
     if(result.includes("&")) {
-        result = result.replace(/-/g, " and ");
+        result = result.replace(/&/g, " and ");
     }
 
     if(result.includes("_")) {
-        result = result.replace(/-/g, " blank ");
+        result = result.replace(/_/g, " blank ");
     }
 
     return result;
@@ -366,42 +411,15 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
         urlProperties.catID = category.CatID;
         this.attributes["category"] = category.CatName;
 
-        var body = "";
-        var data = "";
-
         const url = urlBuilder(this.attributes["mode"]);
 
-
-        var req = https.request(url, (res) => {
-
-            res.on('data', (d) => {
-                body += d;
-            });
-
-            res.on('end', () => {
-                data = JSON.parse(body);
-                var results = data.results;
-                for (var i = 0; i < results.length; i++) {
-                        results[i].question = format(results[i].question);
-                        results[i].correct_answer = format(results[i].correct_answer);
-                        for (var j = 0; j < results[i].incorrect_answers.length; j++) {
-                            results[i].incorrect_answers[j] = format(results[i].incorrect_answers[j]);
-                        }
-                }
-                this.attributes["questionList"] = results;
-                this.emitWithState("AskQuestion");
-            });
-
-
-        });
-
-        req.on('error', (e) => {
-            console.error(e);
+        databaseCall(url).then((results) => {
+            this.attributes["questionList"] = results;
+            this.emitWithState("AskQuestion");
+        }).catch((err) => {
+            console.error(err);
             this.emit(":tell", DB_ERROR_MESSAGE, DB_ERROR_MESSAGE);
-            
         });
-
-        req.end();
 
     },
     "AskQuestion": function() {
@@ -423,6 +441,7 @@ var startHandlers = Alexa.CreateStateHandler(states.START,{
                 var response = "I don't know too much about that.";
                 this.emit(":ask", response + " " + HELP_MESSAGE, HELP_MESSAGE);
         }
+
         var response = "";
         var answer = this.attributes["currentQuestion"].correct_answer;
         var answerMapping = this.attributes["answerMapping"];
@@ -513,6 +532,10 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
                 this.emit(":ask", QUIZ_IN_PROGRESS, REPROMPT_MESSAGE);
         }
 
+        if (this.attributes["hasStarted"] == hasStarted.STOP) {
+            this.emit(":ask", CATEGORY_ERROR_MESSAGE, HELP_MESSAGE);
+        }
+
        var userPick = this.event.request.intent.slots.Category;
       
         if (!getCategory(userPick)) {
@@ -531,42 +554,15 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
                 }
        }    
 
-        var body = "";
-        var data = "";
-
         const url = urlBuilder(this.attributes["mode"]);
-       
-        var req = https.request(url, (res) => {
 
-            res.on('data', (d) => {
-                body += d;
-            });
-
-            res.on('end', () => {
-                data = JSON.parse(body);
-                var results = data.results;
-                for (var i = 0; i < results.length; i++) {
-                        results[i].question = format(results[i].question);
-                        results[i].correct_answer = format(results[i].correct_answer);
-                        for (var j = 0; j < results[i].incorrect_answers.length; j++) {
-                            results[i].incorrect_answers[j] = format(results[i].incorrect_answers[j]);
-                        }
-                }
-                this.attributes["questionList"] = results;
-                this.emitWithState("AskQuestion");
-            });
-
-
-        });
-
-        req.on('error', (e) => {
-            console.error(e);
+        databaseCall(url).then((results) => {
+            this.attributes["questionList"] = results;
+            this.emitWithState("AskQuestion");
+        }).catch((err) => {
+            console.error(err);
             this.emit(":tell", DB_ERROR_MESSAGE, DB_ERROR_MESSAGE);
-            
         });
-
-        req.end();
-
     },
     "AskQuestion": function() {
         var speechOutput = "";
@@ -629,10 +625,16 @@ var quizHandlers = Alexa.CreateStateHandler(states.QUIZ,{
         } 
     },
     "AMAZON.RepeatIntent": function() {
-        if (this.attributes["hasStarted"] == hasStarted.START){
+        if (this.attributes["hasStarted"] == hasStarted.START) {
             this.emit(":ask", this.attributes["repeatQuestion"], this.attributes["repeatQuestion"]);
         }
-        this.emit(":ask", REPEAT_ERROR_MESSAGE + " " + HELP_MESSAGE, HELP_MESSAGE); 
+
+        if (this.attributes["hasStarted"] == hasStarted.STOP) {
+            this.emit(":ask", REPEAT_ERROR_MESSAGE + " " + HELP_MESSAGE, HELP_MESSAGE);
+        }
+
+        var response = getCategoryPrompt(this.attributes["card"]);
+        this.emit(":ask", response, response);
     },
     "AMAZON.StartOverIntent": function() {
         this.attributes["hasStarted"] = hasStarted.STOP;
